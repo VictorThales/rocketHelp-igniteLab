@@ -1,10 +1,13 @@
-import {View, Text } from 'react-native'
+import { VStack, Heading } from "native-base";
+
 
 export function SignIn(){
     return(
-        <View>
-            <Text>hello</Text>
-        </View>
+        <VStack flex={1} alignItems="center" bg={"gray.600"} px={8} pt={24}>
+           <Heading color={"gray.200"} fontSize="xl" mt={20} mb={6}>
+            Acesse sua conta
+           </Heading>
+        </VStack>
     )
 } 
 
