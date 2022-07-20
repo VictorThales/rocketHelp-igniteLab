@@ -1,5 +1,5 @@
 import React from 'react';
-import { SignIn } from './src/screens/SignIn';
+import { SignIn } from './src/screens/SignIn/index';
 import {NativeBaseProvider, StatusBar} from 'native-base';
 import {THEME} from './src/styles/theme'; 
 import { useFonts, Roboto_400Regular, Roboto_700Bold} from '@expo-google-fonts/roboto';
