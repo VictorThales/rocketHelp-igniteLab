@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import {
   Heading,
   HStack,
@@ -12,22 +13,32 @@ import { ChatTeardrop, ChatTeardropText, SignOut } from 'phosphor-react-native';
 import { useState } from 'react';
 import Logo from '../../assets/logo_secondary.svg';
 import { Button } from '../../components/Button';
-import { Filter } from '../../components/Filter/Filter';
-import { Order } from '../../components/Order/Order';
+import { Filter } from '../../components/Filter';
+import { Order } from '../../components/Order';
 import { OrderProps } from '../../components/Order/type';
 import { StatusCond, StatusSelected } from './type';
 
 export function Home() {
+  const navigation = useNavigation();
   const [statusSelected, setStatusSelected] = useState<StatusSelected>(StatusCond.OPEN);
   const [orders, setOrders] = useState<OrderProps[]>([
-    // {
-    //   id: '123',
-    //   patrimony: '123456',
-    //   when: '18/07/2020 às 10:00',
-    //   status: 'open'
-    // }
+    {
+      id: '123',
+      patrimony: '123456',
+      when: '18/07/2020 às 10:00',
+      status: 'open'
+    }
   ]);
   const { colors } = useTheme();
+
+  function handleNewOrder(){
+     navigation.navigate('new')
+  }
+
+  function handleOpenDetails(orderId: string){
+    navigation.navigate('details',{orderId})
+  }
+
   return (
     <VStack flex={1} pb={6} bg={'gray.700'}>
       <HStack
@@ -71,7 +82,7 @@ export function Home() {
         <FlatList
           keyExtractor={item => item.id}
           data={orders}
-          renderItem={({ item }) => <Order data={item} />}
+          renderItem={({ item }) => <Order data={item} onPress={() => handleOpenDetails(item.id)}/>}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
           ListEmptyComponent={() => (
@@ -83,7 +94,7 @@ export function Home() {
             </Center>
           )}
         />
-        <Button title="Nova Solicitação" />
+        <Button title="Nova Solicitação" onPress={handleNewOrder}/>
       </VStack>
     </VStack>
   );
