@@ -1,6 +1,9 @@
 import { useNavigation } from '@react-navigation/native';
+import auth from  '@react-native-firebase/auth';
 import {
-  Center, FlatList, Heading,
+  Center,
+  FlatList,
+  Heading,
   HStack,
   IconButton,
   Text,
@@ -15,6 +18,7 @@ import { Filter } from '../../components/Filter';
 import { Order } from '../../components/Order';
 import { OrderProps } from '../../components/Order/type';
 import { StatusCond, StatusSelected } from './type';
+import { Alert } from 'react-native';
 
 export function Home() {
   const navigation = useNavigation();
@@ -71,17 +75,24 @@ export function Home() {
   ]);
   const { colors } = useTheme();
 
-  function handleNewOrder(){
-     navigation.navigate('new')
+  function handleNewOrder() {
+    navigation.navigate('new');
   }
 
-  function handleOpenDetails(orderId: string){
-    navigation.navigate('details',{orderId})
+  function handleLogout() {
+    auth().signOut().catch(error => {
+      console.log('Erro signOut: ', error);
+      return Alert.alert('Sair', 'Não foi possível efetuar o logout.')
+    })
+  }
+
+  function handleOpenDetails(orderId: string) {
+    navigation.navigate('details', { orderId });
   }
 
   const filterItems = (status: StatusCond) => {
-    return orders.filter(item => item.status === status)
-  }
+    return orders.filter(item => item.status === status);
+  };
 
   return (
     <VStack flex={1} pb={6} bg={'gray.700'}>
@@ -95,7 +106,7 @@ export function Home() {
         px={6}
       >
         <Logo />
-        <IconButton icon={<SignOut size={26} color={colors.gray[300]} />} />
+        <IconButton icon={<SignOut size={26} color={colors.gray[300]} />} onPress={handleLogout} />
       </HStack>
       <VStack flex={1} px={6}>
         <HStack
@@ -126,19 +137,22 @@ export function Home() {
         <FlatList
           keyExtractor={item => item.id}
           data={filterItems(statusSelected)}
-          renderItem={({ item }) => <Order data={item} onPress={() => handleOpenDetails(item.id)}/>}
+          renderItem={({ item }) => (
+            <Order data={item} onPress={() => handleOpenDetails(item.id)} />
+          )}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
           ListEmptyComponent={() => (
             <Center>
               <ChatTeardropText color={colors.gray[300]} size={40} />
               <Text color="gray.300" fontSize="xl" mt={6} textAlign="center">
-                Você não possui {'\n'} solicitações {statusSelected === StatusCond.OPEN ? 'em andamento' : 'finalizadas'}
+                Você não possui {'\n'} solicitações{' '}
+                {statusSelected === StatusCond.OPEN ? 'em andamento' : 'finalizadas'}
               </Text>
             </Center>
           )}
         />
-        <Button title="Nova Solicitação" onPress={handleNewOrder}/>
+        <Button title="Nova Solicitação" onPress={handleNewOrder} />
       </VStack>
     </VStack>
   );
