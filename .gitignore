@@ -3,7 +3,7 @@
 .DS_Store
 android
 ios
-google-services-info.json
+google-services.json
 GoogleService-Info.plist
 # Xcode
 #
