@@ -1,15 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import {
-  Heading,
+  Center, FlatList, Heading,
   HStack,
   IconButton,
   Text,
   useTheme,
-  VStack,
-  FlatList,
-  Center
+  VStack
 } from 'native-base';
-import { ChatTeardrop, ChatTeardropText, SignOut } from 'phosphor-react-native';
+import { ChatTeardropText, SignOut } from 'phosphor-react-native';
 import { useState } from 'react';
 import Logo from '../../assets/logo_secondary.svg';
 import { Button } from '../../components/Button';
@@ -23,10 +21,52 @@ export function Home() {
   const [statusSelected, setStatusSelected] = useState<StatusSelected>(StatusCond.OPEN);
   const [orders, setOrders] = useState<OrderProps[]>([
     {
-      id: '123',
-      patrimony: '123456',
+      id: '1',
+      patrimony: '00001',
       when: '18/07/2020 às 10:00',
+      status: 'close'
+    },
+    {
+      id: '2',
+      patrimony: '00002',
+      when: '18/07/2020 às 11:00',
       status: 'open'
+    },
+    {
+      id: '3',
+      patrimony: '00003',
+      when: '18/07/2020 às 12:00',
+      status: 'open'
+    },
+    {
+      id: '4',
+      patrimony: '00004',
+      when: '18/07/2020 às 13:00',
+      status: 'open'
+    },
+    {
+      id: '5',
+      patrimony: '00005',
+      when: '18/07/2020 às 10:00',
+      status: 'close'
+    },
+    {
+      id: '6',
+      patrimony: '00006',
+      when: '18/07/2020 às 11:00',
+      status: 'open'
+    },
+    {
+      id: '7',
+      patrimony: '00007',
+      when: '18/07/2020 às 12:00',
+      status: 'open'
+    },
+    {
+      id: '8',
+      patrimony: '00008',
+      when: '18/07/2020 às 13:00',
+      status: 'close'
     }
   ]);
   const { colors } = useTheme();
@@ -37,6 +77,10 @@ export function Home() {
 
   function handleOpenDetails(orderId: string){
     navigation.navigate('details',{orderId})
+  }
+
+  const filterItems = (status: StatusCond) => {
+    return orders.filter(item => item.status === status)
   }
 
   return (
@@ -62,7 +106,7 @@ export function Home() {
           alignItems={'center'}
         >
           <Heading color={'gray.100'}>Meus Chamados</Heading>
-          <Text color="gray.200">3</Text>
+          <Text color="gray.200">{orders.length}</Text>
         </HStack>
 
         <HStack space={3} mb={8}>
@@ -81,7 +125,7 @@ export function Home() {
         </HStack>
         <FlatList
           keyExtractor={item => item.id}
-          data={orders}
+          data={filterItems(statusSelected)}
           renderItem={({ item }) => <Order data={item} onPress={() => handleOpenDetails(item.id)}/>}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}

@@ -1,5 +1,5 @@
 import { useRoute } from '@react-navigation/native';
-import { VStack, Text } from 'native-base';
+import { VStack, Text, Center } from 'native-base';
 import { Header } from '../../components/Header';
 import { RouteParams } from './type';
 
@@ -9,7 +9,7 @@ export function Details() {
   return (
     <VStack flex={1} bg={'gray.700'}>
       <Header title="Solicitação" />
-      <Text color={'white'}>{orderId}</Text>
+      <Center> <Text color={'white'}>Ordem: {orderId}</Text></Center>
     </VStack>
   );
 }
