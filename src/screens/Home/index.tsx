@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
-import auth from  '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import {
   Center,
   FlatList,
@@ -11,7 +12,7 @@ import {
   VStack
 } from 'native-base';
 import { ChatTeardropText, SignOut } from 'phosphor-react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Logo from '../../assets/logo_secondary.svg';
 import { Button } from '../../components/Button';
 import { Filter } from '../../components/Filter';
@@ -19,60 +20,14 @@ import { Order } from '../../components/Order';
 import { OrderProps } from '../../components/Order/type';
 import { StatusCond, StatusSelected } from './type';
 import { Alert } from 'react-native';
+import { dateFormat } from '../../utils/firestoreDateFormat';
+import { Loading } from '../../components/Loading';
 
 export function Home() {
   const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(true);
   const [statusSelected, setStatusSelected] = useState<StatusSelected>(StatusCond.OPEN);
-  const [orders, setOrders] = useState<OrderProps[]>([
-    {
-      id: '1',
-      patrimony: '00001',
-      when: '18/07/2020 às 10:00',
-      status: 'close'
-    },
-    {
-      id: '2',
-      patrimony: '00002',
-      when: '18/07/2020 às 11:00',
-      status: 'open'
-    },
-    {
-      id: '3',
-      patrimony: '00003',
-      when: '18/07/2020 às 12:00',
-      status: 'open'
-    },
-    {
-      id: '4',
-      patrimony: '00004',
-      when: '18/07/2020 às 13:00',
-      status: 'open'
-    },
-    {
-      id: '5',
-      patrimony: '00005',
-      when: '18/07/2020 às 10:00',
-      status: 'close'
-    },
-    {
-      id: '6',
-      patrimony: '00006',
-      when: '18/07/2020 às 11:00',
-      status: 'open'
-    },
-    {
-      id: '7',
-      patrimony: '00007',
-      when: '18/07/2020 às 12:00',
-      status: 'open'
-    },
-    {
-      id: '8',
-      patrimony: '00008',
-      when: '18/07/2020 às 13:00',
-      status: 'close'
-    }
-  ]);
+  const [orders, setOrders] = useState<OrderProps[]>([]);
   const { colors } = useTheme();
 
   function handleNewOrder() {
@@ -80,19 +35,39 @@ export function Home() {
   }
 
   function handleLogout() {
-    auth().signOut().catch(error => {
-      console.log('Erro signOut: ', error);
-      return Alert.alert('Sair', 'Não foi possível efetuar o logout.')
-    })
+    auth()
+      .signOut()
+      .catch(error => {
+        console.log('Erro signOut: ', error);
+        return Alert.alert('Sair', 'Não foi possível efetuar o logout.');
+      });
   }
 
   function handleOpenDetails(orderId: string) {
     navigation.navigate('details', { orderId });
   }
 
-  const filterItems = (status: StatusCond) => {
-    return orders.filter(item => item.status === status);
-  };
+  useEffect(() => {
+    setIsLoading(true);
+    const subscriber = firestore()
+      .collection('orders')
+      .where('status', '==', statusSelected)
+      .onSnapshot(snapshot => {
+        const data = snapshot.docs.map(doc => {
+          const { patrimony, description, status, created_at } = doc.data();
+          return {
+            id: doc.id,
+            patrimony,
+            description,
+            status,
+            when: dateFormat(created_at)
+          }
+        });
+        setOrders(data);
+        setIsLoading(false)
+      });
+      return subscriber;
+  }, [statusSelected]);
 
   return (
     <VStack flex={1} pb={6} bg={'gray.700'}>
@@ -106,7 +81,10 @@ export function Home() {
         px={6}
       >
         <Logo />
-        <IconButton icon={<SignOut size={26} color={colors.gray[300]} />} onPress={handleLogout} />
+        <IconButton
+          icon={<SignOut size={26} color={colors.gray[300]} />}
+          onPress={handleLogout}
+        />
       </HStack>
       <VStack flex={1} px={6}>
         <HStack
@@ -134,9 +112,10 @@ export function Home() {
             isActive={statusSelected === StatusCond.CLOSE}
           />
         </HStack>
+        {isLoading ? <Loading /> :
         <FlatList
           keyExtractor={item => item.id}
-          data={filterItems(statusSelected)}
+          data={orders}
           renderItem={({ item }) => (
             <Order data={item} onPress={() => handleOpenDetails(item.id)} />
           )}
@@ -152,6 +131,7 @@ export function Home() {
             </Center>
           )}
         />
+          }
         <Button title="Nova Solicitação" onPress={handleNewOrder} />
       </VStack>
     </VStack>
