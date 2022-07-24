@@ -1,7 +1,10 @@
 # OSX
 #
 .DS_Store
-
+android
+ios
+google-services-info.json
+GoogleService-Info.plist
 # Xcode
 #
 build/
